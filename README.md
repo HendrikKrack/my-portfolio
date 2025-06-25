@@ -1,7 +1,10 @@
+![Portfolio Banner](images/title.png)
+
+_> Be aware of Bit sharks - This Repo is still under construction _
+
 # My Interactive 3D Portfolio
 
-A modern, interactive portfolio website built with Three.js, inspired by Bruno Simon's design but customized for your personal brand.
-
+A modern, interactive portfolio website built with Three.js, inspired by Bruno Simon's design.
 ## Features
 
 - **Interactive 3D Environment**: Navigate through a 3D space using WASD keys and mouse
@@ -76,7 +79,7 @@ static/                 # Static assets (models, textures, etc.)
 
 ## Inspiration
 
-This portfolio is inspired by Bruno Simon's award-winning portfolio but built from scratch with your own creative vision and the blue Ford Transit camper van aesthetic you wanted.
+This portfolio is inspired by Bruno Simon's award-winning portfolio but built from scratch with my of combining surfing and coding. 
 
 ## License
 
