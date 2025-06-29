@@ -55,7 +55,7 @@ function createHillBlock(position, scale = { x: 8, y: 15, z: 12 }, isRightHill =
     midBlock.position.set(
         midOffsetX,
         (blockCenterY - position.y) + totalHeight * 0.1 + (isRightHill ? 0.02 : 0.15),  // Larger Y offset for left hill
-        isRightHill ? 0.05 : 0.15  // Z offset to ensure separation
+        isRightHill ? 0.05 : 0.25  // Larger Z offset for left hill to prevent YZ plane flickering
     )
     blockGroup.add(midBlock)
     
@@ -100,10 +100,10 @@ function createHillBlock(position, scale = { x: 8, y: 15, z: 12 }, isRightHill =
         totalHeight * 0.2, // Medium height
         8 // 8 sides for dome-like appearance
     )
-    const dome = new THREE.Mesh(domeGeometry, hillMaterial)
+    const dome = new THREE.Mesh(domeGeometry, new THREE.MeshLambertMaterial({ color: 0x2A4A32, flatShading: true })) // Darker green
     dome.position.set(
         scale.x * 0.3,   // Far right
-        (blockCenterY - position.y) + totalHeight * 0.25,
+        (blockCenterY - position.y) + totalHeight * 0.15 + 0.05,  // Lower to merge with rectangle underneath
         -scale.z * 0.1
     )
     blockGroup.add(dome)
@@ -115,10 +115,10 @@ function createHillBlock(position, scale = { x: 8, y: 15, z: 12 }, isRightHill =
         totalHeight * 0.3, // Height
         3 // 3 sides = triangle
     )
-    const cliff = new THREE.Mesh(cliffGeometry, hillMaterialMid)
+    const cliff = new THREE.Mesh(cliffGeometry, new THREE.MeshLambertMaterial({ color: 0x3D6B47, flatShading: true })) // Mid-tone green
     cliff.position.set(
         scale.x * 0.05,  // Center-ish
-        (blockCenterY - position.y) + totalHeight * 0.35,
+        (blockCenterY - position.y) + totalHeight * 0.35 - 1,  // Move down by 1 unit
         scale.z * 0.25
     )
     cliff.rotation.y = Math.PI * 0.3  // Rotate for asymmetry
@@ -147,10 +147,10 @@ function createHillBlock(position, scale = { x: 8, y: 15, z: 12 }, isRightHill =
         totalHeight * 0.18, // Height
         4 // 4 sides but will be rotated
     )
-    const irregular = new THREE.Mesh(irregularGeometry, hillMaterialMid)
+    const irregular = new THREE.Mesh(irregularGeometry, new THREE.MeshLambertMaterial({ color: 0x4A5D3A, flatShading: true })) // Dark olive green
     irregular.position.set(
         scale.x * 0.2,   // Right side
-        (blockCenterY - position.y) + totalHeight * 0.45,
+        (blockCenterY - position.y) + totalHeight * 0.35 + 0.1,  // Lower with small offset to eliminate gap
         scale.z * 0.05
     )
     irregular.rotation.y = Math.PI * 0.125  // 22.5 degree rotation
@@ -168,7 +168,7 @@ function createHillBlock(position, scale = { x: 8, y: 15, z: 12 }, isRightHill =
         const peak = new THREE.Mesh(peakGeometry, i % 2 ? hillMaterial : hillMaterialDark)
         peak.position.set(
             scale.x * (-0.15 + i * 0.1),  // Spread across
-            (blockCenterY - position.y) + totalHeight * (0.5 + i * 0.05),
+            (blockCenterY - position.y) + totalHeight * (0.4 + i * 0.03) + 0.15,  // Raised back up with offset
             scale.z * (-0.05 + i * 0.05)
         )
         peak.rotation.y = Math.PI * i * 0.2  // Different rotations

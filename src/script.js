@@ -4,10 +4,7 @@ import * as THREE from 'three'
 // Import our modular objects
 import { createOcean } from './objects/Ocean.js'
 import { createGoldenGateBridge } from './objects/Bridge.js'
-import { createSurfboards } from './objects/Surfboards.js'
-import { createSanFranciscoHills } from './objects/Hills.js'
 import { createSunsetLighting } from './objects/Lighting.js'
-import { createBridgeHill } from './objects/bridgeHill.js'
 import { createBridgeAdjacentHills } from './objects/bridgeAdjacentHills.js'
 import { AudioSystem } from './objects/AudioSystem.js'
 
@@ -128,11 +125,7 @@ function createCoordinateHelpers() {
 const coordinateHelpers = createCoordinateHelpers()
 scene.add(coordinateHelpers)
 
-const surfboards = createSurfboards()
-scene.add(surfboards.group)
 
-const hills = createSanFranciscoHills()
-scene.add(hills.group)
 
 const lighting = createSunsetLighting()
 scene.add(lighting.group)
@@ -213,8 +206,6 @@ function animate() {
     ocean.update(elapsedTime)
     bridge.update(elapsedTime)
     bridgeAdjacentHills.update(elapsedTime)
-    surfboards.update(elapsedTime)
-    hills.update(elapsedTime)
     lighting.update(elapsedTime)
     
     // Smooth camera rotation based on mouse
