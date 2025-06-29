@@ -6,6 +6,7 @@ import { createOcean } from './objects/Ocean.js'
 import { createGoldenGateBridge } from './objects/Bridge.js'
 import { createSunsetLighting } from './objects/Lighting.js'
 import { createBridgeAdjacentHills } from './objects/bridgeAdjacentHills.js'
+import { createStarfield } from './objects/Stars.js'
 import { AudioSystem } from './objects/AudioSystem.js'
 
 // Application state
@@ -88,6 +89,9 @@ scene.add(bridge.group)
 const bridgeAdjacentHills = createBridgeAdjacentHills()
 scene.add(bridgeAdjacentHills.group)
 
+const starfield = createStarfield()
+scene.add(starfield.group)
+
 //const bridgeHill = createBridgeHill()
 //scene.add(bridgeHill)
 
@@ -138,6 +142,41 @@ window.audioControls = {
     startAudio: () => audioSystem.startAmbientSounds(),
     stopAudio: () => audioSystem.stopAmbientSounds(),
     toggleMute: () => audioSystem.toggleMute()
+}
+
+// Star controls for easy adjustment
+window.starControls = {
+    show: () => {
+        starfield.setVisibility(true)
+        console.log('⭐ Stars should now be visible!')
+    },
+    hide: () => {
+        starfield.setVisibility(false)
+        console.log('🌑 Stars hidden')
+    },
+    superBright: () => {
+        starfield.setBrightness(10.0)
+        console.log('🔆 Stars set to SUPER BRIGHT!')
+    },
+    brighten: () => {
+        starfield.setBrightness(6.0)
+        console.log('✨ Stars brightened!')
+    },
+    normal: () => {
+        starfield.setBrightness(4.0)
+        console.log('🌟 Stars set to normal brightness')
+    },
+    dim: () => {
+        starfield.setBrightness(2.0)
+        console.log('🌙 Stars dimmed')
+    },
+    debug: () => {
+        console.log('🔍 STAR DEBUG INFO:')
+        console.log('Group visible:', starfield.group.visible)
+        console.log('Group position:', starfield.group.position)
+        console.log('Group children:', starfield.group.children.length)
+        console.log('Meshes:', starfield.meshes.length)
+    }
 }
 
 // Auto-start audio on first user interaction
@@ -206,6 +245,7 @@ function animate() {
     ocean.update(elapsedTime)
     bridge.update(elapsedTime)
     bridgeAdjacentHills.update(elapsedTime)
+    starfield.update(elapsedTime)
     lighting.update(elapsedTime)
     
     // Smooth camera rotation based on mouse
