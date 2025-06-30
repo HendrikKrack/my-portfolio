@@ -55,7 +55,7 @@ export function createSunsetLighting() {
             // Dynamic sunset colors - sun moves through the sky
             const timeOfDay = Math.sin(time * 0.1) * 0.5 + 0.5 // 0 to 1
             const sunHeight = timeOfDay * 2 - 0.5 // -0.5 to 1.5
-            sunLight.position.y = Math.max(0, sunHeight * 20)
+            sunLight.position.y = Math.max(0, sunHeight * 50)
             
             // Change sun color based on height (lower = more orange/red)
             const sunIntensity = Math.max(0, Math.min(1, sunLight.position.y / 15 + 0.3))
@@ -64,7 +64,7 @@ export function createSunsetLighting() {
                 0.9,                              // Saturation
                 0.5 + sunIntensity * 0.3          // Lightness varies with height
             )
-            sunLight.intensity = 0.5 + sunIntensity * 1.3
+            sunLight.intensity = 0.5 + sunIntensity * 2.3
             
             // Update hemisphere light to match time of day
             hemiLight.intensity = 0.4 + sunIntensity * 0.2

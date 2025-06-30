@@ -47,7 +47,7 @@ export function createStarfield() {
     // Simple bright white material with circular texture
     const starMaterial = new THREE.PointsMaterial({
         color: 0xFFFFFF,
-        size: 4.0,
+        size: 3.5,  // Reduced by 12.5% (was 4.0)
         sizeAttenuation: true,
         transparent: true,
         opacity: 1.0,
@@ -78,7 +78,7 @@ export function createStarfield() {
     
     const brightStarMaterial = new THREE.PointsMaterial({
         color: 0xFFFFFF,
-        size: 8.0,
+        size: 7.0,  // Reduced by 12.5% (was 8.0)
         sizeAttenuation: true,
         transparent: true,
         opacity: 1.0,
@@ -100,7 +100,7 @@ export function createStarfield() {
         const y = radius * Math.cos(phi)
         const z = radius * Math.sin(phi) * Math.sin(theta)
         
-        const starGeometry = new THREE.SphereGeometry(0.5, 8, 8)
+        const starGeometry = new THREE.SphereGeometry(0.44, 8, 8)  // Reduced by 12% (was 0.5)
         const starMaterial = new THREE.MeshBasicMaterial({
             color: 0xFFFFFF,
             transparent: true,
@@ -136,10 +136,10 @@ export function createStarfield() {
             starsGroup.visible = visible
             console.log(`🌟 Stars visibility set to:`, visible)
         },
-        setBrightness: (brightness) => {
-            starMaterial.size = 4.0 * brightness
-            brightStarMaterial.size = 8.0 * brightness
-            console.log(`🔆 Stars brightness set to:`, brightness)
-        }
+                 setBrightness: (brightness) => {
+             starMaterial.size = 3.5 * brightness  // Updated base size
+             brightStarMaterial.size = 7.0 * brightness  // Updated base size
+             console.log(`🔆 Stars brightness set to:`, brightness)
+         }
     }
 } 

@@ -7,6 +7,7 @@ import { createGoldenGateBridge } from './objects/Bridge.js'
 import { createSunsetLighting } from './objects/Lighting.js'
 import { createBridgeAdjacentHills } from './objects/bridgeAdjacentHills.js'
 import { createStarfield } from './objects/Stars.js'
+import { createProjectManager } from './objects/Projects/ProjectManager.js'
 import { AudioSystem } from './objects/AudioSystem.js'
 
 // Application state
@@ -51,17 +52,103 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap
 renderer.toneMapping = THREE.ACESFilmicToneMapping
 renderer.toneMappingExposure = 1.0
 
-// Mouse controls for camera movement
+// Mouse controls for camera movement and interactions
 const mouse = new THREE.Vector2()
+const raycaster = new THREE.Raycaster()
 let targetRotationY = 0
 let targetRotationX = 0
+let isInBirdsEyeView = false
+let originalCameraPosition = new THREE.Vector3()
+let originalCameraRotation = new THREE.Euler()
+let targetCameraPosition = new THREE.Vector3()
+let targetCameraRotation = new THREE.Euler()
+let cameraTransitionProgress = 0
+let isTransitioning = false
+
+// Store original camera state
+originalCameraPosition.copy(camera.position)
+originalCameraRotation.copy(camera.rotation)
 
 window.addEventListener('mousemove', (event) => {
     mouse.x = (event.clientX / sizes.width) * 2 - 1
     mouse.y = -(event.clientY / sizes.height) * 2 + 1
     
-    targetRotationY = mouse.x * 0.3
-    targetRotationX = mouse.y * 0.1
+    if (!isInBirdsEyeView && !isTransitioning) {
+        targetRotationY = -mouse.x * 0.3  // Inverted: mouse left = camera left
+        targetRotationX = -mouse.y * 0.1  // Inverted: mouse up = camera up
+        
+        // Check for hover over islands
+        raycaster.setFromCamera(mouse, camera)
+        const githubIsland = projectManager.getProject('github')
+        if (githubIsland) {
+            const intersects = raycaster.intersectObjects(githubIsland.group.children, true)
+            
+            if (intersects.length > 0) {
+                document.body.style.cursor = 'pointer'
+                if (githubIsland.setHover) githubIsland.setHover(true)
+            } else {
+                document.body.style.cursor = 'default'
+                if (githubIsland.setHover) githubIsland.setHover(false)
+            }
+        }
+    }
+})
+
+// Click handler for island interactions
+window.addEventListener('click', (event) => {
+    mouse.x = (event.clientX / sizes.width) * 2 - 1
+    mouse.y = -(event.clientY / sizes.height) * 2 + 1
+    
+    raycaster.setFromCamera(mouse, camera)
+    
+    // Check for intersections with project islands
+    const githubIsland = projectManager.getProject('github')
+    if (githubIsland) {
+        const intersects = raycaster.intersectObjects(githubIsland.group.children, true)
+        
+        if (intersects.length > 0) {
+            console.log('🏝️ GitHub Island clicked!')
+            toggleBirdsEyeView(githubIsland)
+        }
+    }
+})
+
+// Function to toggle bird's eye view
+function toggleBirdsEyeView(targetProject) {
+    if (isTransitioning) return
+    
+    isTransitioning = true
+    cameraTransitionProgress = 0
+    
+    if (!isInBirdsEyeView) {
+        // Switch to bird's eye view
+        console.log('📹 Switching to bird\'s eye view')
+        
+        const projectPosition = targetProject.getPosition()
+        targetCameraPosition.set(
+            projectPosition.x,
+            projectPosition.y + 15, // Adjusted height for smaller island
+            projectPosition.z
+        )
+        targetCameraRotation.set(-Math.PI / 2, 0, 0) // Looking straight down
+        
+        isInBirdsEyeView = true
+    } else {
+        // Return to original view
+        console.log('📹 Returning to original view')
+        
+        targetCameraPosition.copy(originalCameraPosition)
+        targetCameraRotation.copy(originalCameraRotation)
+        
+        isInBirdsEyeView = false
+    }
+}
+
+// ESC key to return to original view
+window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isInBirdsEyeView) {
+        toggleBirdsEyeView(null)
+    }
 })
 
 // Window resize handler
@@ -91,6 +178,9 @@ scene.add(bridgeAdjacentHills.group)
 
 const starfield = createStarfield()
 scene.add(starfield.group)
+
+const projectManager = createProjectManager()
+scene.add(projectManager.group)
 
 //const bridgeHill = createBridgeHill()
 //scene.add(bridgeHill)
@@ -246,11 +336,43 @@ function animate() {
     bridge.update(elapsedTime)
     bridgeAdjacentHills.update(elapsedTime)
     starfield.update(elapsedTime)
+    projectManager.update(elapsedTime)
     lighting.update(elapsedTime)
     
-    // Smooth camera rotation based on mouse
-    camera.rotation.y += (targetRotationY - camera.rotation.y) * 0.05
-    camera.rotation.x += (targetRotationX - camera.rotation.x) * 0.05
+    // Handle camera transitions
+    if (isTransitioning) {
+        cameraTransitionProgress += 0.02 // Smooth transition speed
+        
+        if (cameraTransitionProgress >= 1) {
+            cameraTransitionProgress = 1
+            isTransitioning = false
+        }
+        
+        // Smooth interpolation between camera positions and rotations
+        const t = easeInOutCubic(cameraTransitionProgress)
+        
+        camera.position.lerpVectors(
+            isInBirdsEyeView ? originalCameraPosition : camera.position,
+            targetCameraPosition,
+            isInBirdsEyeView ? t : t
+        )
+        
+        // Interpolate rotation
+        const startRotation = isInBirdsEyeView ? originalCameraRotation : camera.rotation
+        camera.rotation.x = THREE.MathUtils.lerp(startRotation.x, targetCameraRotation.x, t)
+        camera.rotation.y = THREE.MathUtils.lerp(startRotation.y, targetCameraRotation.y, t)
+        camera.rotation.z = THREE.MathUtils.lerp(startRotation.z, targetCameraRotation.z, t)
+        
+    } else if (!isInBirdsEyeView) {
+        // Normal mouse-based camera rotation (only when not in bird's eye view)
+        camera.rotation.y += (targetRotationY - camera.rotation.y) * 0.05
+        camera.rotation.x += (targetRotationX - camera.rotation.x) * 0.05
+    }
+    
+    // Easing function for smooth transitions
+    function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+    }
     
     // Update spatial audio based on camera position
     if (audioStarted) {
